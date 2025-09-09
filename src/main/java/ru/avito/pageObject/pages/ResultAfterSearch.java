@@ -1,5 +1,6 @@
 package ru.avito.pageObject.pages;
 
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
@@ -12,12 +13,10 @@ import java.util.List;
 
 import static com.codeborne.selenide.Condition.clickable;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.$x;
-import static com.codeborne.selenide.Selenide.webdriver;
+import static com.codeborne.selenide.Selenide.*;
 
 public class ResultAfterSearch {
 
-    List<SelenideElement> itemsArr = new ArrayList<>();
     public static List<String> urlArr = new ArrayList<>();
 
     private String currentUrl;
@@ -29,8 +28,8 @@ public class ResultAfterSearch {
             $x("//input[contains(@marker, 'price-from')]");
     private SelenideElement priceToInput =
             $x("//input[contains(@marker, 'price-to')]");
-    private SelenideElement item =
-            $x("//div[@data-marker= 'item']" +
+    private ElementsCollection items =
+            $$x("//div[@data-marker= 'item']" +
                     "[descendant::p[contains(text(), ' час назад') " +
                     "or contains(text(), 'часа назад') " +
                     "or contains(text(), 'часов назад')" +
@@ -58,19 +57,19 @@ public class ResultAfterSearch {
     }
 
     public List<String> checkItems() {
-        if (item.exists()) {
-            itemsArr.add(item);
-        }
-        for (int i = 0; i < itemsArr.size(); i++) {
-            itemsArr.get(i).click();
-            Selenide.switchTo().window(1);
-            $x("//h2[contains(text(), 'Характеристики')]").shouldBe(visible);
-            $x("//span[contains(text(), 'Товар зарезервирован')]").shouldNotBe(visible);
-            currentUrl = WebDriverRunner.getWebDriver().getCurrentUrl();
-            urlArr.add(currentUrl);
+        if (!items.isEmpty()) {
+            for (int i = 0; i < items.size(); i++) {
+                items.get(i).click();
+                Selenide.switchTo().window(1);
+                $x("//h2[contains(text(), 'Характеристики')]").shouldBe(visible);
+                $x("//span[contains(text(), 'Товар зарезервирован')]").shouldNotBe(visible);
+                currentUrl = WebDriverRunner.getWebDriver().getCurrentUrl();
+                urlArr.add(currentUrl);
+                Selenide.closeWindow();
+                Selenide.switchTo().window(0);
+            }
         }
         return urlArr;
     }
-
 
 }

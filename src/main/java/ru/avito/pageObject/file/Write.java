@@ -24,8 +24,8 @@ public class Write {
 
         for (int i = 0; i < list.size(); i++) {
             String content = list.get(i);
-            writer.write(content);
-            writer.close();
+            writer.write(content + "\n");
         }
+        writer.close();
     }
 }
